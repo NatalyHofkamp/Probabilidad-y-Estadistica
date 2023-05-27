@@ -35,7 +35,7 @@ def main():
     print(P(3,2))
     # elapsed_time = time.time() - start_time
     # print("Elapsed time: %0.10f seconds." % elapsed_time)
-    recFact(-1)
+    recFact(4)
     # elapsed2_time = time.time() - start_time-elapsed_time
     # print("Elapsed time: %0.10f seconds." % elapsed2_time)
     return
