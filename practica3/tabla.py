@@ -23,6 +23,6 @@ def print_table(table):
     for i in table:
         print(f'|{i[0]} | {i[1]}|')
 
-tabla = dataframe(10,20,15)
+tabla = dataframe(3,20,15)
 print_table(tabla)
 print(prob_be_woman(tabla))

@@ -15,14 +15,14 @@ with open(ruta_archivo, 'r') as archivo_csv:
         for año in linea:
             año = list(año.strip().split(','))
             if i == 0:
-                pbi.append(float(año[0]))  # primer trimestre
-                pbi.append(float(año[2]))  # tercer trimestre
+                pbi.append(np.log(float(año[0])))  # primer trimestre
+                pbi.append(np.log(float(año[2])))  # tercer trimestre
             elif i == 1:
-                consumo.append(float(año[0]))  # primer trimestre
-                consumo.append(float(año[2]))  # tercer trimestre
+                consumo.append(np.log(float(año[0])))  # primer trimestre
+                consumo.append(np.log(float(año[2])))  # tercer trimestre
             else:
-                inversion.append(float(año[0]))  # primer trimestre
-                inversion.append(float(año[2]))  # tercer trimestre
+                inversion.append(np.log(float(año[0])))  # primer trimestre
+                inversion.append(np.log(float(año[2])))  # tercer trimestre
         i += 1
 
 tiempo = np.arange(2013, 2023, 0.5)  # Arreglo de tiempo con trimestres
@@ -34,6 +34,6 @@ plt.plot(tiempo, pbi, label='PBI')
 
 plt.xlabel('Año')
 plt.ylabel('Valor')
-plt.title('Evolución del Consumo, Inversión y PBI')
+plt.title('Evolución del Consumo, Inversión y PBI en escala logarítmica')
 plt.legend()
 plt.show()
