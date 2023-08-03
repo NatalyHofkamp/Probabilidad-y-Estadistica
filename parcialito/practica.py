@@ -1,10 +1,10 @@
 from scipy.special import factorial,comb
-from scipy.stats import hypergeom,binom,expon,norm
+from scipy.stats import hypergeom,binom,expon,norm,t
 import pandas as pd
 import numpy as np
 import random
 import matplotlib.pyplot as plt
-import statistics
+from statistics import mean,variance 
 #funcion de distribucion empirica 
 import statsmodels.api as sm
 
@@ -75,19 +75,15 @@ def dist_expo(lambd,size):
 def dist_normal(m,sigma,size):
     return norm.rvs(loc  = m,scale= sigma, size = size)
 
+
 def esperanza(var, prob):
-    mean=0
-    for i in range (len(prob)):
-        mean+= var[i]*prob[i]
+    mean = np.dot(var, prob)
     return mean
 
-def varianza(var,prob):
-    mean = esperanza(var,prob)
-    varianza = 0
-    for i in range (len(var)):
-        varianza+= ((var[i]-mean)**2)*prob[i]
+def varianza(var, prob):
+    media = np.dot(var, prob)
+    varianza = np.dot(prob, (var - media) ** 2)
     return varianza
-
 
 def prob_acum_xy(tabla,n,m,k):
     result = 0
@@ -109,7 +105,7 @@ def prob_esperanza_xdadoy (tabla,n,m,k):
     return results
 
 def esperanza_varianza_muestral(muestra):
-    return statistics.mean(muestra),statistics.variance(muestra)
+    return np.mean(muestra),np.var(muestra, ddof=1)
 
 def histo_fr_relativas (muestra,ancho,title):
     plt.xlabel(r'$Y$',fontsize = 15)
@@ -136,11 +132,30 @@ def intervalo_confianza(muestra,varianza,confianza):
     return limite_inferior, limite_superior
 
 def t_student (muestra,confianza):
-    varianza_estimada = esperanza_varianza_muestral(muestra)[1]
-    return intervalo_confianza(muestra,varianza_estimada,confianza)
+    n = len(muestra)
+    alpha = (1 - (confianza/100)) / 2
+    print(alpha)
+    media, var = esperanza_varianza_muestral(muestra)
+    z = t.ppf(1 - alpha, df=n-1)  
+    margen_error = z * np.sqrt(var/ n)
+    limite_inferior = media - margen_error
+    limite_superior = media + margen_error
+    return limite_inferior, limite_superior
 
 def longitud_intervalo (a,b):
     return np.abs(b-a)
+
+def plot_int_conf(mu,inf,sup,muestra):
+    # Intervalos en función de muestra
+    plt.title(r'Intervalos de confianza para $\mu$', fontsize = 20)
+    plt.ylabel(r'$(a,b)$', fontsize = 15)
+    plt.xlabel(r'$muestra$',fontsize = 15)
+    plt.axhline(y=mu, color='grey')         # Graficamos el valor de mu como referencia
+
+    for i in range(len(muestra)):
+        plt.plot((muestra[i], muestra[i]), (inf[i], sup[i]), 'g-' if (mu >= inf[i] and mu <= sup[i]) else 'r-') 
+        # El intervalo lo pintamos verde si contiene a mu, rojo en caso contrario
+    plt.show()
 
 def main():
     np.random.seed(123)
@@ -191,25 +206,18 @@ def main():
     muestra_uniforme = np.random.rand(100)
     muestra_nueva = ecdf(muestra_uniforme)
     print("----GUIA 10 ----\n Muestra de 100 datos ~N(0,1):",muestra_normal,'\n')
-    print(" Muestra de 100 datos ~U(0,1) a los que se le aplicó la funcion de distribución empirica:\n",muestra_normal,'\n')
-    muestra = muestras_independientes(100)
+    print(" Muestra de 100 datos ~U(0,1) a los que se le aplicó la funcion de distribución empirica:\n",muestra_nueva,'\n')
+   
+    muestra = [3.4,2.5,2.9,3.6,2.8,3.3,5.6,3.7,2.8,4.4,4.0,5.2,3.0,4.8]
     for i in [95,98]:
         int_estimador = intervalo_confianza(muestra,5,i)
         int_student = t_student(muestra,i)
         print("----GUIA 11 ----\n Intervalo con ",i," de confianza usando el estimador →:(",int_estimador[0],',',int_estimador[1],')\n')
         print(" → Longitud = ",longitud_intervalo(int_estimador[0],int_estimador[1]),'\n')
+        # plt.plot(plot_int_conf(esperanza_varianza_muestral(muestra)[0],int_estimador[0],int_estimador[1],muestra))
         print(" Intervalo con ",i," de confianza usando t de student →:(",int_student[0],',',int_student[1],')\n')
         print(" → Longitud = ",longitud_intervalo(int_student[0],int_student[1]),'\n')
-
-
-
-    
-    
-
-    
-
-
-
+        # plt.plot(plot_int_conf(esperanza_varianza_muestral(muestra)[0],int_student[0],int_student[1],muestra))
 
 if __name__ == '__main__':
     main()
